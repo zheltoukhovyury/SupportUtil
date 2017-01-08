@@ -70,6 +70,7 @@ namespace SupportUtil
         System.IO.Ports.SerialPort port;
         Packet currentPAcket;
         System.Timers.Timer sendingTimer;
+        bool sendingTimerElapsed = false;
         string name;
         PortState state = PortState.NA;
         Thread portThread;
@@ -122,7 +123,7 @@ namespace SupportUtil
         }
 
 
-
+        static int byteCnt = 0;
         void PortThread()
         {
             byte[] rcvPacket = new byte[260];
@@ -133,10 +134,9 @@ namespace SupportUtil
                 byte[] readByte = new byte[1];
                 try
                 {
-                    //port.BaseStream.Read(readByte, 0, 1);
                     int test = port.Read(readByte, 0, 1);
                     rcvPacket[rcvP++] = readByte[0];
-
+                    byteCnt++;
                     if (rcvPacket[0] != 0x55)
                         rcvP = 0;
                     if (rcvP >= 2 && rcvP >= (4 + rcvPacket[1]))
@@ -165,6 +165,14 @@ namespace SupportUtil
                 catch (Exception)
                 {
                 }
+
+                if(sendingTimerElapsed)
+                {
+                    sendingTimerElapsed = false;
+                    currentPAcket.packetState = PacketState.NACK_PacketState;
+                }
+
+
             }
         }
 
@@ -180,8 +188,9 @@ namespace SupportUtil
             }
             sendingTimer = new System.Timers.Timer(1000);
             sendingTimer.Elapsed += (object sender, ElapsedEventArgs e) => {
+                sendingTimer.AutoReset = false;
+                sendingTimerElapsed = true;
                 sendingTimer.Stop();
-                currentPAcket.packetState = PacketState.NACK_PacketState;
             };
             sendingTimer.Start();
 

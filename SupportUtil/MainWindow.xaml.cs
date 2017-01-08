@@ -67,19 +67,34 @@ namespace SupportUtil
         {
 
             XmlDocument document = new XmlDocument();
-            //document.Load("newXml.xml");
+            document.AppendChild(document.CreateElement("body"));
+
+
             XmlNode baseSetup = document.CreateElement("baseSetup");
-            {
-                XmlNode ipAdd = document.CreateElement("ipAddr");
-                XmlAttribute typeAttr = document.CreateAttribute("type");
-                typeAttr.Value = "ip";
-                ipAdd.InnerText = BaseSetup.baseSettings.ipAddress;
-                ipAdd.Attributes.Append(typeAttr);
-                baseSetup.AppendChild(ipAdd);
-            }
-            document.AppendChild(baseSetup);
+            baseSetup.AppendChild(CreateOption("ipAddr", "ip", BaseSetup.baseSettings.ipAddress, document));
+            baseSetup.AppendChild(CreateOption("port", "uint_16", BaseSetup.baseSettings.port.ToString(), document));
+            baseSetup.AppendChild(CreateOption("enabled", "bool", BaseSetup.baseSettings.serverEnabled.ToString(), document));
+            document.DocumentElement.AppendChild(baseSetup);
+
+            XmlNode GSMNumberSettings = document.CreateElement("GSMNumberSettings");
+            GSMNumberSettings.AppendChild(CreateOption("GSMNumber_1", "GSMNumber", "9601346889", document));
+            GSMNumberSettings.AppendChild(CreateOption("GSMNumber_2", "GSMNumber", "9601346889", document));
+            document.DocumentElement.AppendChild(GSMNumberSettings);
+
             return document;
         }
+
+
+        XmlNode CreateOption(String name, String type, String value, XmlDocument doc)
+        {
+            XmlNode option = doc.CreateElement("name");
+            XmlAttribute typeAttr = doc.CreateAttribute("type");
+            typeAttr.Value = type;
+            option.InnerText = value;
+            option.Attributes.Append(typeAttr);
+            return option;
+        }
+
 
 
         void FillModeSelector()
@@ -227,6 +242,9 @@ namespace SupportUtil
                     case 2:
                         packet.opcode = Opcode.ExchangeCheck_Opcode;
                         break;
+                    case 3:
+                        packet.opcode = Opcode.WriteXmlToDevice;
+                        break;
                 }
                 packet.data = new byte[data[1]];
                 packet.packet = data;
@@ -257,7 +275,9 @@ namespace SupportUtil
                 case Opcode.ExchangeCheck_Opcode:
                     packet.packet[2] = 2;
                     break;
-
+                case Opcode.WriteXmlToDevice:
+                    packet.packet[2] = 3;
+                    break;
             }
             Array.Copy(data, 0, packet.packet, 3, data.Length);
             packet.packet[3 + data.Length] = 0xCC;
@@ -295,7 +315,7 @@ namespace SupportUtil
 
             exchangeCheckTimer = new System.Timers.Timer(1000);
             exchangeCheckTimer.Elapsed += ExchangeCheckTimer_Elapsed; ;
-            exchangeCheckTimer.Start();
+            //exchangeCheckTimer.Start();
 
             communicationState = CommunicationState.Idle;
             Packet sendedPAcket = null;
@@ -332,10 +352,10 @@ namespace SupportUtil
                             break;
                         }
 
-                        if (xmlSettingsStream.Length > 100)
+                        if (xmlSettingsStream.Length - xmlSettingsStream.Position > 100)
                             data = new byte[4 + 100];
                         else
-                            data = new byte[4 + xmlSettingsStream.Length];
+                            data = new byte[4 + xmlSettingsStream.Length - xmlSettingsStream.Position];
 
                         BitConverter.GetBytes(xmlSendAddr);
 

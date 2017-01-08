@@ -1,3 +1,11 @@
-<baseSetup>
-  <ipAddr type="ip">auto.stadis.pro</ipAddr>
-</baseSetup>
+<body>
+  <baseSetup>
+    <name type="ip">auto.stadis.pro</name>
+    <name type="uint_16">2021</name>
+    <name type="bool">True</name>
+  </baseSetup>
+  <GSMNumberSettings>
+    <name type="GSMNumber">9601346889</name>
+    <name type="GSMNumber">9601346889</name>
+  </GSMNumberSettings>
+</body>
