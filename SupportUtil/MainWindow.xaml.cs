@@ -87,7 +87,7 @@ namespace SupportUtil
 
         XmlNode CreateOption(String name, String type, String value, XmlDocument doc)
         {
-            XmlNode option = doc.CreateElement("name");
+            XmlNode option = doc.CreateElement(name);
             XmlAttribute typeAttr = doc.CreateAttribute("type");
             typeAttr.Value = type;
             option.InnerText = value;
@@ -346,7 +346,7 @@ namespace SupportUtil
                     case CommunicationState.SendXmx_sending:
                         byte[] data;
 
-                        if (xmlSettingsStream.Length == 0)
+                        if (xmlSettingsStream.Length - xmlSettingsStream.Position == 0)
                         {
                             communicationState = CommunicationState.Idle;
                             break;

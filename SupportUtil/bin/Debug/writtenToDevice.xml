@@ -1,12 +1,11 @@
 <body>
   <baseSetup>
-    <name type="ip">
-    </name>
-    <name type="uint_16">0</name>
-    <name type="bool">False</name>
+    <ipAddr type="ip">auto.stadis.pro</ipAddr>
+    <port type="uint_16">2021</port>
+    <enabled type="bool">True</enabled>
   </baseSetup>
   <GSMNumberSettings>
-    <name type="GSMNumber">9601346889</name>
-    <name type="GSMNumber">9601346889</name>
+    <GSMNumber_1 type="GSMNumber">9601346889</GSMNumber_1>
+    <GSMNumber_2 type="GSMNumber">9601346889</GSMNumber_2>
   </GSMNumberSettings>
 </body>
